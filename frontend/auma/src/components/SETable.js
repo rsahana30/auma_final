@@ -1,11 +1,15 @@
-// SETable.js
 import React from "react";
 
 const SETable = ({ result }) => {
   if (!result || (Array.isArray(result) && result.length === 0)) return null;
 
-  // Support both single object and array
   const data = Array.isArray(result) ? result : [result];
+
+  // Define keys to exclude from display
+  const excludeKeys = ["rfqNo", "customerId", "productGroupId"];
+
+  // Get displayable columns from the first row
+  const columns = Object.keys(data[0]).filter((key) => !excludeKeys.includes(key));
 
   return (
     <div className="mt-4">
@@ -13,7 +17,7 @@ const SETable = ({ result }) => {
       <table className="table table-bordered">
         <thead className="table-light">
           <tr>
-            {Object.keys(data[0]).map((key, index) => (
+            {columns.map((key, index) => (
               <th key={index}>{key}</th>
             ))}
           </tr>
@@ -21,8 +25,8 @@ const SETable = ({ result }) => {
         <tbody>
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              {Object.values(row).map((value, colIndex) => (
-                <td key={colIndex}>{String(value)}</td>
+              {columns.map((col, colIndex) => (
+                <td key={colIndex}>{String(row[col])}</td>
               ))}
             </tr>
           ))}
