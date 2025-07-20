@@ -2,10 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-const valveRoutes = require("./routes/index"); // <-- points to routes/index.js
-
+const index = require("./routes/index"); // <-- points to routes/index.js
+const valveRoutes = require("./routes/valveRoutes");
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use("/api", index);
+
 app.use("/api", valveRoutes); // <--- ✅ This mounts your routes with /api prefix
 
 const PORT = process.env.PORT || 5000;

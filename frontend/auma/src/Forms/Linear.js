@@ -3,62 +3,102 @@ import axios from "axios";
 import SETable from "../components/SETable";
 
 const Linear = ({ rfqNo, customerId, productGroupId }) => {
-  const [form, setForm] = useState({
-    itemNo: "",
-    valveType: "Globe Valve",
-    valveSize: "",
-    valveThrust: "",
-    stroke: "",
-    safetyFactor: 1.2
-  });
+  const [forms, setForms] = useState([
+    {
+      itemNo: "",
+      valveType: "Globe Valve",
+      valveSize: "",
+      valveThrust: "",
+      stroke: "",
+      safetyFactor: 1.2,
+    },
+  ]);
+  const [results, setResults] = useState([]);
 
-  const [result, setResult] = useState(null);
+  const handleChange = (i, e) => {
+    const updated = [...forms];
+    updated[i][e.target.name] = e.target.value;
+    setForms(updated);
+  };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const addRow = () => {
+    setForms([
+      ...forms,
+      {
+        itemNo: "",
+        valveType: "Globe Valve",
+        valveSize: "",
+        valveThrust: "",
+        stroke: "",
+        safetyFactor: 1.2,
+      },
+    ]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!rfqNo || !customerId || !productGroupId) {
-      alert("Missing RFQ info. Please regenerate RFQ.");
-      return;
-    }
-
-    const payload = {
-      ...form,
-      rfqNo,
-      customerId,
-      productGroupId
-    };
-
     try {
-      const res = await axios.post("http://localhost:5000/api/type3", payload);
-      setResult(res.data);
+      const res = await Promise.all(
+        forms.map((form) =>
+          axios.post("http://localhost:5000/api/type3", {
+            ...form,
+            rfqNo,
+            customerId,
+            productGroupId,
+          })
+        )
+      );
+      setResults(res.map((r) => r.data));
     } catch (err) {
       console.error("Error saving Linear Valve:", err);
-      alert("Failed to save RFQ.");
+      alert("Failed to save one or more rows.");
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="card p-4">
-        <h5 className="mb-3">Type 3: Linear Valve (Globe/Control)</h5>
-        <input className="form-control mb-2" name="itemNo" placeholder="Item No" onChange={handleChange} />
-        <select className="form-control mb-2" name="valveType" value={form.valveType} onChange={handleChange}>
-          <option value="Globe Valve">Globe Valve</option>
-          <option value="Control Valve">Control Valve</option>
-        </select>
-        <input className="form-control mb-2" name="valveSize" placeholder="Valve Size" onChange={handleChange} />
-        <input className="form-control mb-2" name="valveThrust" placeholder="Valve Thrust (N)" onChange={handleChange} />
-        <input className="form-control mb-2" name="stroke" placeholder="Stroke (mm)" onChange={handleChange} />
-        <input className="form-control mb-2" name="safetyFactor" value={form.safetyFactor} readOnly />
-        <button className="btn btn-success mt-2">Submit</button>
+      <form onSubmit={handleSubmit}>
+        <table className="table table-bordered align-middle">
+          <thead>
+            <tr>
+              <th>Item No</th>
+              <th>Valve Type</th>
+              <th>Valve Size</th>
+              <th>Valve Thrust (N)</th>
+              <th>Stroke (mm)</th>
+              <th>Safety Factor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {forms.map((form, i) => (
+              <tr key={i}>
+                <td><input className="form-control" name="itemNo" value={form.itemNo} onChange={(e) => handleChange(i, e)} /></td>
+                <td>
+                  <select className="form-control" name="valveType" value={form.valveType} onChange={(e) => handleChange(i, e)}>
+                    <option>Globe Valve</option>
+                    <option>Control Valve</option>
+                  </select>
+                </td>
+                <td><input className="form-control" name="valveSize" value={form.valveSize} onChange={(e) => handleChange(i, e)} /></td>
+                <td><input className="form-control" name="valveThrust" value={form.valveThrust} onChange={(e) => handleChange(i, e)} /></td>
+                <td><input className="form-control" name="stroke" value={form.stroke} onChange={(e) => handleChange(i, e)} /></td>
+                <td><input className="form-control" readOnly value={form.safetyFactor} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="d-flex gap-2">
+          <button type="button" className="btn btn-outline-primary" onClick={addRow}>+ Add Row</button>
+          <button type="submit" className="btn btn-success">Submit All</button>
+        </div>
       </form>
 
-      {result && <SETable result={result} />}
+      <div className="mt-4">
+        {results.map((res, i) => (
+          <SETable key={i} result={res} />
+        ))}
+      </div>
     </div>
   );
 };
