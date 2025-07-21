@@ -23,7 +23,7 @@ router.post("/se-mapping/submit", controller.submitSEMapping);
 router.get("/rfq/:rfqNo", controller.getRFQInfo);
 router.get("/se-quotation/:rfqNo", controller.getSEQuotation);
 router.get("/se-mapping/rfqs", controller.getSEMappingRFQs);
-router.get("/se-mapping/details/:rfqNo", controller.getSEMappingDetailsByRFQ);
+
 
 
 

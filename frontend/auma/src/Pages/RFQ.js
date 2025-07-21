@@ -31,7 +31,7 @@ const RFQ = () => {
 
   const handleGenerateRFQ = async () => {
     if (!customerId || !productGroupId) {
-      alert("Please select Customer and Product Group");
+      alert("Please select both Customer and Product Group");
       return;
     }
 
@@ -47,6 +47,13 @@ const RFQ = () => {
       alert("Failed to generate RFQ number");
     }
   };
+
+  const valveOptions = [
+    { label: "Part Turn", value: "type1" },
+    { label: "Multi Turn", value: "type2" },
+    { label: "Linear", value: "type3" },
+    { label: "Lever", value: "type4" },
+  ];
 
   const renderForm = () => {
     const sharedProps = { rfqNo, customerId, productGroupId };
@@ -65,64 +72,101 @@ const RFQ = () => {
   };
 
   return (
-    <div className="container">
-      <h4 className="mb-3">Request for Quotation (RFQ)</h4>
+    <div className="container py-4">
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <h4 className="mb-4">📄 Request for Quotation (RFQ)</h4>
 
-      <div className="btn-group mb-4" role="group">
-        <button className={`btn btn-${mode === "manual" ? "primary" : "outline-primary"}`} onClick={() => setMode("manual")}>
-          Manual Entry
-        </button>
-        <button className={`btn btn-${mode === "excel" ? "primary" : "outline-primary"}`} onClick={() => setMode("excel")}>
-          Upload Excel
-        </button>
-      </div>
-
-      {mode === "manual" && (
-        <>
-          <div className="mb-3">
-            <label className="form-label">Customer</label>
-            <select className="form-select" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-              <option value="">-- Select Customer --</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+          <div className="btn-group mb-4" role="group">
+            <button
+              className={`btn btn-${mode === "manual" ? "primary" : "outline-primary"}`}
+              onClick={() => setMode("manual")}
+            >
+              📝 Manual Entry
+            </button>
+            <button
+              className={`btn btn-${mode === "excel" ? "primary" : "outline-primary"}`}
+              onClick={() => setMode("excel")}
+            >
+              📊 Upload Excel
+            </button>
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Product Group</label>
-            <select className="form-select" value={productGroupId} onChange={(e) => setProductGroupId(e.target.value)}>
-              <option value="">-- Select Product Group --</option>
-              {productGroups.map((pg) => (
-                <option key={pg.id} value={pg.id}>{pg.group_name}</option>
-              ))}
-            </select>
-          </div>
+          {mode === "manual" && (
+            <>
+              <div className="row g-3 mb-3">
+                <div className="col-md-4">
+                  <label className="form-label">Customer</label>
+                  <select
+                    className="form-select"
+                    value={customerId}
+                    onChange={(e) => setCustomerId(e.target.value)}
+                  >
+                    <option value="">-- Select Customer --</option>
+                    {customers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          <div className="mb-3">
-            <label className="form-label">Valve Type</label>
-            <select className="form-select" value={valveType} onChange={(e) => setValveType(e.target.value)}>
-              <option value="type1">Part Turn</option>
-              <option value="type2">Multi Turn</option>
-              <option value="type3">Linear</option>
-              <option value="type4">Lever</option>
-            </select>
-          </div>
+                <div className="col-md-4">
+                  <label className="form-label">Product Group</label>
+                  <select
+                    className="form-select"
+                    value={productGroupId}
+                    onChange={(e) => setProductGroupId(e.target.value)}
+                  >
+                    <option value="">-- Select Product Group --</option>
+                    {productGroups.map((pg) => (
+                      <option key={pg.id} value={pg.id}>
+                        {pg.group_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          <button className="btn btn-success" onClick={handleGenerateRFQ}>
-            Generate RFQ & Proceed
-          </button>
+                <div className="col-md-4">
+                  <label className="form-label">Valve Type</label>
+                  <select
+                    className="form-select"
+                    value={valveType}
+                    onChange={(e) => setValveType(e.target.value)}
+                  >
+                    {valveOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-          {showForm && (
+              <div className="d-flex justify-content-end">
+                <button className="btn btn-success" onClick={handleGenerateRFQ}>
+                  ➕ Generate RFQ & Proceed
+                </button>
+              </div>
+
+              {showForm && (
+                <div className="mt-4">
+                  <div className="alert alert-info">
+                    <strong>Generated RFQ No:</strong> {rfqNo}
+                  </div>
+                  {renderForm()}
+                </div>
+              )}
+            </>
+          )}
+
+          {mode === "excel" && (
             <div className="mt-3">
-              <strong>Generated RFQ No:</strong> {rfqNo}
-              {renderForm()}
+              <ExcelUpload />
             </div>
           )}
-        </>
-      )}
-
-      {mode === "excel" && <ExcelUpload />}
+        </div>
+      </div>
     </div>
   );
 };

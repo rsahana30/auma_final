@@ -13,7 +13,7 @@ import Linear from "./Forms/Linear";
 import Lever from "./Forms/Lever";
 import SEMapping from "./Pages/SEMapping";
 import Quotation from "./Pages/Quotation";
-import QuotationDetails from "./Pages/QuotationDetails";
+
 
 function App() {
   return (
@@ -27,7 +27,7 @@ function App() {
           <Route path="/type1" element={<PartTurn />} />
           <Route path="/type2" element={<MultiTurn />} />
           <Route path="/type3" element={<Linear />} />
-          <Route path="/se-mapping/view/:rfqNo" element={<QuotationDetails/>} />
+          {/* <Route path="/se-mapping/view/:rfqNo" element={<QuotationDetails/>} /> */}
 
           <Route path="/type4" element={<Lever />} />
         </Route>

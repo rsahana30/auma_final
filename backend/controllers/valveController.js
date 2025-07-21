@@ -408,9 +408,12 @@ exports.getSEQuotation = async (req, res) => {
 exports.getSEMappingRFQs = async (req, res) => {
   try {
     const [rows] = await db.promise().query(`
-      SELECT DISTINCT rfq_no 
-      FROM se_mappings
-      ORDER BY rfq_no DESC
+      SELECT DISTINCT r.rfq_no, c.name, pg.group_name
+      FROM se_mappings sm
+      JOIN rfqs r ON sm.rfq_no = r.rfq_no
+      JOIN customers c ON r.customer_id = c.id
+      JOIN product_groups pg ON r.product_group_id = pg.id
+      ORDER BY r.rfq_no DESC
     `);
     res.json(rows);
   } catch (err) {
@@ -419,46 +422,38 @@ exports.getSEMappingRFQs = async (req, res) => {
   }
 };
 
-exports.getSEMappingDetailsByRFQ = async (req, res) => {
+
+exports.getSEQuotation = async (req, res) => {
   const { rfqNo } = req.params;
 
   try {
     const [rows] = await db.promise().query(`
-      SELECT 
+     SELECT 
+        sm.id,
         sm.rfq_no,
         sm.valve_type,
-        sm.valve_row_id,
-        v.itemNo,
-        v.valveType,
-        v.valveSize,
+       
         sm.auma_model,
-        a.description,
-        a.unitPrice,
-        a.netWeight,
         sm.quantity,
-        (a.unitPrice * sm.quantity) AS total
+        am.description,
+        am.netWeight,
+        am.torque,
+        am.thrust,
+        am.stroke,
+        am.unitPrice,
+        (sm.quantity * am.unitPrice) AS totalPrice
       FROM se_mappings sm
-      JOIN (
-        SELECT id, itemNo, valveType, valveSize, 'PartTurn' AS type FROM PartTurn
-        UNION ALL
-        SELECT id, itemNo, valveType, valveSize, 'MultiTurn' AS type FROM MultiTurn
-        UNION ALL
-        SELECT id, itemNo, valveType, valveSize, 'Linear' AS type FROM Linear_valve
-        UNION ALL
-        SELECT id, itemNo, valveType, NULL AS valveSize, 'Lever' AS type FROM Lever
-      ) v 
-        ON v.id = sm.valve_row_id AND LOWER(v.type) = LOWER(sm.valve_type)
-      JOIN auma_model a 
-        ON a.modelName = sm.auma_model AND LOWER(a.type) = LOWER(sm.valve_type)
+      JOIN auma_model am ON sm.auma_model = am.modelName
       WHERE sm.rfq_no = ?
-      ORDER BY v.itemNo, a.modelName
     `, [rfqNo]);
 
     res.json(rows);
   } catch (err) {
-    console.error("❌ Error fetching SE Mapping details:", err);
-    res.status(500).json({ error: "Failed to fetch SE Mapping details" });
+    console.error("❌ Error fetching SE Quotation:", err.message, err.stack);
+    res.status(500).json({ error: "Failed to fetch SE Quotation" });
   }
 };
+
+
 
 

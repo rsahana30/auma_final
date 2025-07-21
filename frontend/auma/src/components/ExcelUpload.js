@@ -1,5 +1,3 @@
-// ✅ FRONTEND: ExcelUpload.js
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -46,19 +44,21 @@ const ExcelUpload = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Upload Excel for Valve Selection</h2>
+    <div className="card shadow-sm p-4">
+      <h5 className="card-title mb-4 text-primary">
+        📊 Upload Excel for Valve Selection
+      </h5>
 
-      <div className="flex gap-4 mb-4">
-        <div>
-          <label className="block mb-1">Customer</label>
+      <div className="row mb-3">
+        <div className="col-md-6">
+          <label className="form-label">Customer</label>
           <select
             name="customer"
-            className="border p-2 rounded"
+            className="form-select"
             value={form.customer}
             onChange={handleChange}
           >
-            <option value="">Select</option>
+            <option value="">-- Select Customer --</option>
             {customers.map((cust) => (
               <option key={cust.id} value={cust.id}>
                 {cust.name}
@@ -67,15 +67,15 @@ const ExcelUpload = () => {
           </select>
         </div>
 
-        <div>
-          <label className="block mb-1">Product Group</label>
+        <div className="col-md-6">
+          <label className="form-label">Product Group</label>
           <select
             name="productGroup"
-            className="border p-2 rounded"
+            className="form-select"
             value={form.productGroup}
             onChange={handleChange}
           >
-            <option value="">Select</option>
+            <option value="">-- Select Product Group --</option>
             {productGroups.map((grp) => (
               <option key={grp.id} value={grp.id}>
                 {grp.group_name}
@@ -85,12 +85,34 @@ const ExcelUpload = () => {
         </div>
       </div>
 
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-      <button onClick={handleUpload} className="ml-4 px-4 py-2 bg-blue-600 text-white rounded">
-        Upload
+      <div className="mb-3">
+        <label className="form-label">Excel File</label>
+        <input
+          type="file"
+          className="form-control"
+          accept=".xlsx, .xls"
+          onChange={handleFileChange}
+        />
+      </div>
+
+      <button
+        onClick={handleUpload}
+        className="btn btn-success"
+      >
+        ⬆️ Upload File
       </button>
 
-      {uploadStatus && <p className="mt-4 font-semibold">{uploadStatus}</p>}
+      {uploadStatus && (
+        <div
+          style={{ whiteSpace: "pre-line" }}
+          role="alert"
+          className={`alert mt-4 ${uploadStatus.includes("✅") ? "alert-success" : "alert-danger"
+            }`}
+        >
+          {uploadStatus}
+        </div>
+      )}
+
     </div>
   );
 };
