@@ -50,25 +50,20 @@ exports.getDropdownData = async (req, res) => {
 };
 
 
-
-
-// Insert PartTurn
-// PartTurn
-// PartTurn
 exports.type1 = (req, res) => {
   const {
     itemNo, valveType, valveSize, valveTorque, mast, safetyFactor,
     rfqNo, customerId, type
   } = req.body;
 
-  const calculatedTorque = valveTorque * safetyFactor;
+  const total= valveTorque * safetyFactor;
   const actuator = { name: "AUMA A1", rpm: 30, price: 8000, weight: 6 };
   const opTime = (15 / actuator.rpm).toFixed(2);
 
   const sql = `
     INSERT INTO PartTurn (
       itemNo, valveType, valveSize, valveTorque, mast, safetyFactor,
-      calculatedTorque, actuator, rpm, opTime, price, weight,
+      total, actuator, rpm, opTime, price, weight,
       rfqNo, customerId, type
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -76,7 +71,7 @@ exports.type1 = (req, res) => {
 
   const values = [
     itemNo, valveType, valveSize, valveTorque, mast, safetyFactor,
-    calculatedTorque, actuator.name, actuator.rpm, opTime,
+    total, actuator.name, actuator.rpm, opTime,
     actuator.price, actuator.weight, rfqNo, customerId, type
   ];
 
@@ -93,14 +88,14 @@ exports.type2 = (req, res) => {
     rfqNo, customerId
   } = req.body;
 
-  const calculatedThrust = valveThrust * safetyFactor;
+  const total = valveThrust * safetyFactor;
   const actuator = { name: "AUMA MT1", rpm: 20, price: 12000, weight: 10 };
   const opTime = (80 / (4 * actuator.rpm)).toFixed(2);
 
   const sql = `
     INSERT INTO MultiTurn (
       itemNo, valveType, valveSize, valveThrust, mast, safetyFactor,
-      calculatedThrust, actuator, rpm, opTime, price, weight,
+      total, actuator, rpm, opTime, price, weight,
       rfqNo, customerId
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -108,7 +103,7 @@ exports.type2 = (req, res) => {
 
   const values = [
     itemNo, valveType, valveSize, valveThrust, mast, safetyFactor,
-    calculatedThrust, actuator.name, actuator.rpm, opTime,
+    total, actuator.name, actuator.rpm, opTime,
     actuator.price, actuator.weight, rfqNo, customerId
   ];
 
@@ -125,14 +120,14 @@ exports.type3 = (req, res) => {
     rfqNo, customerId
   } = req.body;
 
-  const calculatedThrust = valveThrust * safetyFactor;
+  const total= valveThrust * safetyFactor;
   const actuator = { name: "AUMA L1", rpm: 15, price: 11000, weight: 9 };
   const opTime = (stroke / (4 * actuator.rpm)).toFixed(2);
 
   const sql = `
     INSERT INTO Linear_valve (
       itemNo, valveType, valveSize, valveThrust, stroke, safetyFactor,
-      calculatedThrust, actuator, rpm, opTime, price, weight,
+      total, actuator, rpm, opTime, price, weight,
       rfqNo, customerId
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -140,7 +135,7 @@ exports.type3 = (req, res) => {
 
   const values = [
     itemNo, valveType, valveSize, valveThrust, stroke, safetyFactor,
-    calculatedThrust, actuator.name, actuator.rpm, opTime,
+    total, actuator.name, actuator.rpm, opTime,
     actuator.price, actuator.weight, rfqNo, customerId
   ];
 
@@ -157,14 +152,14 @@ exports.type4 = (req, res) => {
     rfqNo, customerId
   } = req.body;
 
-  const calculatedTorque = appliedForce * leverArmLength * safetyFactor;
+  const total = appliedForce * leverArmLength * safetyFactor;
   const actuator = { name: "AUMA L2", rpm: 18, price: 9600, weight: 8.5 };
   const opTime = (15 / actuator.rpm).toFixed(2);
 
   const sql = `
     INSERT INTO Lever (
       itemNo, valveType, appliedForce, leverArmLength, mast, safetyFactor,
-      calculatedTorque, actuator, rpm, opTime, price, weight,
+      total, actuator, rpm, opTime, price, weight,
       rfqNo, customerId
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -172,7 +167,7 @@ exports.type4 = (req, res) => {
 
   const values = [
     itemNo, valveType, appliedForce, leverArmLength, mast, safetyFactor,
-    calculatedTorque, actuator.name, actuator.rpm, opTime,
+    total, actuator.name, actuator.rpm, opTime,
     actuator.price, actuator.weight, rfqNo, customerId
   ];
 
@@ -183,11 +178,6 @@ exports.type4 = (req, res) => {
 };
 
 
-
-// Dropdown Data
-
-
-// RFQ List
 exports.getSEMappingData = async (req, res) => {
   try {
     const [rows] = await db.promise().query(`
