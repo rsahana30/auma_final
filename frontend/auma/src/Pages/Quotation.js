@@ -111,7 +111,7 @@ const Quotation = () => {
               <thead className="table-light">
                 <tr>
                   <th>#</th>
-                  <th>Item No</th>
+                  
                   <th>Valve Type</th>
                   <th>Valve Size</th>
                   <th>Model</th>
@@ -125,7 +125,7 @@ const Quotation = () => {
                 {quotationDetails.map((item, index) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
-                    <td>{item.itemNo ?? "—"}</td>
+                   
                     <td>{item.valve_type ?? "—"}</td>
                     <td>{item.netWeight ?? "—"}</td>
                     <td>{item.auma_model ?? "—"}</td>

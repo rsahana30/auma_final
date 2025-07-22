@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import SETable from "../components/SETable";
 
-const Linear = ({ rfqNo, customerId, productGroupId }) => {
+const Linear = ({ rfqNo, customerId }) => {
   const [forms, setForms] = useState([
     {
       itemNo: "",
@@ -44,7 +44,6 @@ const Linear = ({ rfqNo, customerId, productGroupId }) => {
             ...form,
             rfqNo,
             customerId,
-            productGroupId,
           })
         )
       );

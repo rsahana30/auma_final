@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import SETable from "../components/SETable";
 
-const PartTurn = ({ rfqNo, customerId, productGroupId }) => {
+const PartTurn = ({ rfqNo, customerId }) => {
   const [forms, setForms] = useState([
     {
       itemNo: "",
@@ -39,7 +39,7 @@ const PartTurn = ({ rfqNo, customerId, productGroupId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!rfqNo || !customerId || !productGroupId) {
+    if (!rfqNo || !customerId) {
       alert("Missing RFQ info. Please regenerate RFQ.");
       return;
     }
@@ -51,7 +51,7 @@ const PartTurn = ({ rfqNo, customerId, productGroupId }) => {
             ...form,
             rfqNo,
             customerId,
-            productGroupId,
+            type: "PartTurn",
           })
         )
       );
@@ -81,62 +81,17 @@ const PartTurn = ({ rfqNo, customerId, productGroupId }) => {
             <tbody>
               {forms.map((form, index) => (
                 <tr key={index}>
+                  <td><input type="text" name="itemNo" className="form-control" value={form.itemNo} onChange={(e) => handleChange(index, e)} /></td>
                   <td>
-                    <input
-                      type="text"
-                      name="itemNo"
-                      className="form-control"
-                      value={form.itemNo}
-                      onChange={(e) => handleChange(index, e)}
-                    />
-                  </td>
-                  <td>
-                    <select
-                      name="valveType"
-                      className="form-control"
-                      value={form.valveType}
-                      onChange={(e) => handleChange(index, e)}
-                    >
+                    <select name="valveType" className="form-control" value={form.valveType} onChange={(e) => handleChange(index, e)}>
                       <option value="Ball Valve">Ball Valve</option>
                       <option value="Butterfly Valve">Butterfly Valve</option>
                     </select>
                   </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="valveSize"
-                      className="form-control"
-                      value={form.valveSize}
-                      onChange={(e) => handleChange(index, e)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="valveTorque"
-                      className="form-control"
-                      value={form.valveTorque}
-                      onChange={(e) => handleChange(index, e)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="mast"
-                      className="form-control"
-                      value={form.mast}
-                      onChange={(e) => handleChange(index, e)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      name="safetyFactor"
-                      className="form-control"
-                      value={form.safetyFactor}
-                      readOnly
-                    />
-                  </td>
+                  <td><input type="text" name="valveSize" className="form-control" value={form.valveSize} onChange={(e) => handleChange(index, e)} /></td>
+                  <td><input type="text" name="valveTorque" className="form-control" value={form.valveTorque} onChange={(e) => handleChange(index, e)} /></td>
+                  <td><input type="text" name="mast" className="form-control" value={form.mast} onChange={(e) => handleChange(index, e)} /></td>
+                  <td><input type="number" name="safetyFactor" className="form-control" value={form.safetyFactor} readOnly /></td>
                 </tr>
               ))}
             </tbody>
@@ -144,12 +99,8 @@ const PartTurn = ({ rfqNo, customerId, productGroupId }) => {
         </div>
 
         <div className="d-flex gap-2">
-          <button type="button" className="btn btn-outline-primary" onClick={handleAddRow}>
-            + Add Row
-          </button>
-          <button type="submit" className="btn btn-success">
-            Submit All
-          </button>
+          <button type="button" className="btn btn-outline-primary" onClick={handleAddRow}>+ Add Row</button>
+          <button type="submit" className="btn btn-success">Submit All</button>
         </div>
       </form>
 

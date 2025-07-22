@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import SETable from "../components/SETable";
 
-const Lever = ({ rfqNo, customerId, productGroupId }) => {
+const Lever = ({ rfqNo, customerId }) => {
   const [forms, setForms] = useState([
     {
       itemNo: "",
@@ -44,7 +44,6 @@ const Lever = ({ rfqNo, customerId, productGroupId }) => {
             ...form,
             rfqNo,
             customerId,
-            productGroupId,
           })
         )
       );

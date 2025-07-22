@@ -8,94 +8,72 @@ const valveController = require("../controllers/valveController");
 
 const upload = multer({ dest: "uploads/" });
 
+// Dummy response wrapper
+const dummyRes = {
+  json: (data) => console.log("✔ Inserted:", data),
+  status: () => ({
+    json: (err) => console.error("❌ Controller error:", err)
+  })
+};
+
 router.post("/upload-excel", upload.single("file"), async (req, res) => {
-  const { customer, productGroup } = req.body;
+  const { customer } = req.body;
   const filePath = req.file?.path;
 
-  if (!customer || !productGroup || !filePath) {
-    return res.status(400).json({ error: "Missing customer, product group, or file." });
+  if (!filePath || !customer) {
+    return res.status(400).json({ error: "Missing customer or file." });
   }
 
   try {
     // Step 1: Generate RFQ
     const { data } = await axios.post("http://localhost:5000/api/generate-rfq", {
-      customerId: customer,
-      productGroupId: productGroup
+      customerId: customer
     });
     const rfqNo = data.rfqNo;
-    console.log("✅ RFQ Number generated:", rfqNo);
+    console.log("✅ Generated RFQ:", rfqNo);
 
-    // Step 2: Parse Excel
+    // Step 2: Read Excel
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rawRows = XLSX.utils.sheet_to_json(sheet);
+    const rows = XLSX.utils.sheet_to_json(sheet);
 
-    // Step 3: Normalize column names
-    const normalizeKeys = (row) => {
-      const mapKey = (key) =>
-        key
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
-
-      const normalized = {};
-      for (const key in row) {
-        normalized[mapKey(key)] = row[key];
-      }
-      return normalized;
-    };
-
-    const rows = rawRows.map(normalizeKeys);
-
-    // Step 4: Dispatch each row
+    // Step 3: Process rows
     for (const row of rows) {
       const type = row.type?.toLowerCase();
-      console.log("🔁 Routing type:", type);
-
-      const payload = {
-        ...row,
+      const basePayload = {
+        itemNo: row["Item No"],
+        valveType: row["Valve Type"],
+        valveSize: row["Valve Size"],
+        valveTorque: row["Valve Torque"],
+        valveThrust: row["Valve Torque"],
+        mast: row["Mast"],
+        stroke: row["Stroke"] || null,
+        appliedForce: row["Valve Torque"],
+        leverArmLength: row["Lever Arm Length"] || 1,
+        safetyFactor: row["Safety Factor"] || 1.2,
         rfqNo,
-        customerId: customer,
-        productGroupId: productGroup
+        customerId: customer
       };
-
-      const wrapController = (fn) =>
-        new Promise((resolve, reject) =>
-          fn(
-            { body: payload },
-            {
-              json: resolve,
-              status: () => ({
-                json: (err) => {
-                  console.error("❌ Controller error:", err);
-                  reject(err);
-                }
-              })
-            }
-          )
-        );
 
       try {
         if (type === "partturn") {
-          await wrapController(valveController.type1);
+          await valveController.type1({ body: { ...basePayload, type: "PartTurn" } }, dummyRes);
         } else if (type === "multiturn") {
-          await wrapController(valveController.type2);
+          await valveController.type2({ body: basePayload }, dummyRes);
         } else if (type === "linear") {
-          await wrapController(valveController.type3);
+          await valveController.type3({ body: basePayload }, dummyRes);
         } else if (type === "lever") {
-          await wrapController(valveController.type4);
+          await valveController.type4({ body: basePayload }, dummyRes);
         } else {
           console.warn("❌ Unknown type in row:", type);
         }
       } catch (err) {
-        console.error("❌ Error in row processing:", err);
+        console.error("❌ Failed to insert row:", row, err);
       }
     }
 
-    // Step 5: Clean up file
     fs.unlinkSync(filePath);
-
-    res.json({ message: "✅ Excel data inserted into respective tables", rfqNo });
+    res.json({ message: "✅ Excel data uploaded successfully", rfqNo });
   } catch (err) {
     console.error("❌ Upload error:", err);
     res.status(500).json({ error: "Upload failed" });

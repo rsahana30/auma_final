@@ -4,35 +4,24 @@ import axios from "axios";
 const ExcelUpload = () => {
   const [file, setFile] = useState(null);
   const [customers, setCustomers] = useState([]);
-  const [productGroups, setProductGroups] = useState([]);
-  const [form, setForm] = useState({ customer: "", productGroup: "" });
+  const [customer, setCustomer] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/dropdown-data").then((res) => {
       setCustomers(res.data.customers);
-      setProductGroups(res.data.productGroups);
     });
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
   const handleUpload = async () => {
-    if (!file || !form.customer || !form.productGroup) {
-      setUploadStatus("❗ Please select customer, product group and file.");
+    if (!file || !customer) {
+      setUploadStatus("❗ Please select customer and file.");
       return;
     }
 
     const data = new FormData();
     data.append("file", file);
-    data.append("customer", form.customer);
-    data.append("productGroup", form.productGroup);
+    data.append("customer", customer);
 
     try {
       const res = await axios.post("http://localhost:5000/api/upload-excel", data);
@@ -49,40 +38,20 @@ const ExcelUpload = () => {
         📊 Upload Excel for Valve Selection
       </h5>
 
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <label className="form-label">Customer</label>
-          <select
-            name="customer"
-            className="form-select"
-            value={form.customer}
-            onChange={handleChange}
-          >
-            <option value="">-- Select Customer --</option>
-            {customers.map((cust) => (
-              <option key={cust.id} value={cust.id}>
-                {cust.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="col-md-6">
-          <label className="form-label">Product Group</label>
-          <select
-            name="productGroup"
-            className="form-select"
-            value={form.productGroup}
-            onChange={handleChange}
-          >
-            <option value="">-- Select Product Group --</option>
-            {productGroups.map((grp) => (
-              <option key={grp.id} value={grp.id}>
-                {grp.group_name}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="mb-3">
+        <label className="form-label">Customer</label>
+        <select
+          className="form-select"
+          value={customer}
+          onChange={(e) => setCustomer(e.target.value)}
+        >
+          <option value="">-- Select Customer --</option>
+          {customers.map((cust) => (
+            <option key={cust.id} value={cust.id}>
+              {cust.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mb-3">
@@ -91,28 +60,22 @@ const ExcelUpload = () => {
           type="file"
           className="form-control"
           accept=".xlsx, .xls"
-          onChange={handleFileChange}
+          onChange={(e) => setFile(e.target.files[0])}
         />
       </div>
 
-      <button
-        onClick={handleUpload}
-        className="btn btn-success"
-      >
+      <button className="btn btn-success" onClick={handleUpload}>
         ⬆️ Upload File
       </button>
 
       {uploadStatus && (
         <div
+          className={`alert mt-4 ${uploadStatus.includes("✅") ? "alert-success" : "alert-danger"}`}
           style={{ whiteSpace: "pre-line" }}
-          role="alert"
-          className={`alert mt-4 ${uploadStatus.includes("✅") ? "alert-success" : "alert-danger"
-            }`}
         >
           {uploadStatus}
         </div>
       )}
-
     </div>
   );
 };

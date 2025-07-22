@@ -3,9 +3,9 @@ const db = require("../db");
 // Generate RFQ Number
 exports.generateRFQNumber = async (req, res) => {
   try {
-    const { customerId, productGroupId } = req.body;
-    if (!customerId || !productGroupId) {
-      return res.status(400).json({ error: "Customer ID and Product Group ID are required" });
+    const { customerId } = req.body;
+    if (!customerId) {
+      return res.status(400).json({ error: "Customer ID is required" });
     }
 
     const today = new Date();
@@ -28,8 +28,8 @@ exports.generateRFQNumber = async (req, res) => {
     const rfqNo = `RFQ${dateKey}${String(counter).padStart(4, '0')}`;
 
     await db.promise().query(
-      `INSERT INTO rfqs (rfq_no, customer_id, product_group_id) VALUES (?, ?, ?)`,
-      [rfqNo, customerId, productGroupId]
+      `INSERT INTO rfqs (rfq_no, customer_id) VALUES (?, ?)`,
+      [rfqNo, customerId]
     );
 
     res.json({ rfqNo });
@@ -39,11 +39,26 @@ exports.generateRFQNumber = async (req, res) => {
   }
 };
 
+
+exports.getDropdownData = async (req, res) => {
+  try {
+    const [customers] = await db.promise().query(`SELECT id, name FROM customers`);
+    res.json({ customers });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load dropdown options" });
+  }
+};
+
+
+
+
 // Insert PartTurn
+// PartTurn
+// PartTurn
 exports.type1 = (req, res) => {
   const {
     itemNo, valveType, valveSize, valveTorque, mast, safetyFactor,
-    rfqNo, customerId, productGroupId, type
+    rfqNo, customerId, type
   } = req.body;
 
   const calculatedTorque = valveTorque * safetyFactor;
@@ -54,15 +69,15 @@ exports.type1 = (req, res) => {
     INSERT INTO PartTurn (
       itemNo, valveType, valveSize, valveTorque, mast, safetyFactor,
       calculatedTorque, actuator, rpm, opTime, price, weight,
-      rfqNo, customerId, productGroupId, type
+      rfqNo, customerId, type
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
     itemNo, valveType, valveSize, valveTorque, mast, safetyFactor,
     calculatedTorque, actuator.name, actuator.rpm, opTime,
-    actuator.price, actuator.weight, rfqNo, customerId, productGroupId, type
+    actuator.price, actuator.weight, rfqNo, customerId, type
   ];
 
   db.query(sql, values, (err) => {
@@ -75,7 +90,7 @@ exports.type1 = (req, res) => {
 exports.type2 = (req, res) => {
   const {
     itemNo, valveType, valveSize, valveThrust, mast, safetyFactor,
-    rfqNo, customerId, productGroupId
+    rfqNo, customerId
   } = req.body;
 
   const calculatedThrust = valveThrust * safetyFactor;
@@ -86,15 +101,15 @@ exports.type2 = (req, res) => {
     INSERT INTO MultiTurn (
       itemNo, valveType, valveSize, valveThrust, mast, safetyFactor,
       calculatedThrust, actuator, rpm, opTime, price, weight,
-      rfqNo, customerId, productGroupId
+      rfqNo, customerId
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
     itemNo, valveType, valveSize, valveThrust, mast, safetyFactor,
-    calculatedThrust, actuator.name, actuator.rpm, opTime, actuator.price, actuator.weight,
-    rfqNo, customerId, productGroupId
+    calculatedThrust, actuator.name, actuator.rpm, opTime,
+    actuator.price, actuator.weight, rfqNo, customerId
   ];
 
   db.query(sql, values, (err) => {
@@ -107,7 +122,7 @@ exports.type2 = (req, res) => {
 exports.type3 = (req, res) => {
   const {
     itemNo, valveType, valveSize, valveThrust, stroke, safetyFactor,
-    rfqNo, customerId, productGroupId
+    rfqNo, customerId
   } = req.body;
 
   const calculatedThrust = valveThrust * safetyFactor;
@@ -118,20 +133,20 @@ exports.type3 = (req, res) => {
     INSERT INTO Linear_valve (
       itemNo, valveType, valveSize, valveThrust, stroke, safetyFactor,
       calculatedThrust, actuator, rpm, opTime, price, weight,
-      rfqNo, customerId, productGroupId
+      rfqNo, customerId
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
     itemNo, valveType, valveSize, valveThrust, stroke, safetyFactor,
-    calculatedThrust, actuator.name, actuator.rpm, opTime, actuator.price, actuator.weight,
-    rfqNo, customerId, productGroupId
+    calculatedThrust, actuator.name, actuator.rpm, opTime,
+    actuator.price, actuator.weight, rfqNo, customerId
   ];
 
   db.query(sql, values, (err) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Inserted to Linear", ...req.body });
+    res.json({ message: "Inserted to Linear_valve", ...req.body });
   });
 };
 
@@ -139,7 +154,7 @@ exports.type3 = (req, res) => {
 exports.type4 = (req, res) => {
   const {
     itemNo, valveType, appliedForce, leverArmLength, mast, safetyFactor,
-    rfqNo, customerId, productGroupId
+    rfqNo, customerId
   } = req.body;
 
   const calculatedTorque = appliedForce * leverArmLength * safetyFactor;
@@ -150,15 +165,15 @@ exports.type4 = (req, res) => {
     INSERT INTO Lever (
       itemNo, valveType, appliedForce, leverArmLength, mast, safetyFactor,
       calculatedTorque, actuator, rpm, opTime, price, weight,
-      rfqNo, customerId, productGroupId
+      rfqNo, customerId
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
     itemNo, valveType, appliedForce, leverArmLength, mast, safetyFactor,
-    calculatedTorque, actuator.name, actuator.rpm, opTime, actuator.price, actuator.weight,
-    rfqNo, customerId, productGroupId
+    calculatedTorque, actuator.name, actuator.rpm, opTime,
+    actuator.price, actuator.weight, rfqNo, customerId
   ];
 
   db.query(sql, values, (err) => {
@@ -167,16 +182,10 @@ exports.type4 = (req, res) => {
   });
 };
 
+
+
 // Dropdown Data
-exports.getDropdownData = async (req, res) => {
-  try {
-    const [customers] = await db.promise().query(`SELECT id, name FROM customers`);
-    const [productGroups] = await db.promise().query(`SELECT id, group_name FROM product_groups`);
-    res.json({ customers, productGroups });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to load dropdown options" });
-  }
-};
+
 
 // RFQ List
 exports.getSEMappingData = async (req, res) => {

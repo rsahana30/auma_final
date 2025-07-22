@@ -10,9 +10,7 @@ const RFQ = () => {
   const [mode, setMode] = useState("manual");
   const [valveType, setValveType] = useState("type1");
   const [customers, setCustomers] = useState([]);
-  const [productGroups, setProductGroups] = useState([]);
   const [customerId, setCustomerId] = useState("");
-  const [productGroupId, setProductGroupId] = useState("");
   const [rfqNo, setRfqNo] = useState("");
   const [showForm, setShowForm] = useState(false);
 
@@ -21,7 +19,6 @@ const RFQ = () => {
       try {
         const res = await axios.get("http://localhost:5000/api/dropdown-data");
         setCustomers(res.data.customers);
-        setProductGroups(res.data.productGroups);
       } catch (err) {
         console.error("Dropdown fetch error:", err.message);
       }
@@ -30,15 +27,15 @@ const RFQ = () => {
   }, []);
 
   const handleGenerateRFQ = async () => {
-    if (!customerId || !productGroupId) {
-      alert("Please select both Customer and Product Group");
+    if (!customerId) {
+      alert("Please select a Customer");
       return;
     }
 
     try {
       const res = await axios.post("http://localhost:5000/api/generate-rfq", {
         customerId,
-        productGroupId,
+        productGroupId: null, // No product group
       });
       setRfqNo(res.data.rfqNo);
       setShowForm(true);
@@ -56,7 +53,7 @@ const RFQ = () => {
   ];
 
   const renderForm = () => {
-    const sharedProps = { rfqNo, customerId, productGroupId };
+    const sharedProps = { rfqNo, customerId };
     switch (valveType) {
       case "type1":
         return <PartTurn {...sharedProps} />;
@@ -95,7 +92,7 @@ const RFQ = () => {
           {mode === "manual" && (
             <>
               <div className="row g-3 mb-3">
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <label className="form-label">Customer</label>
                   <select
                     className="form-select"
@@ -111,24 +108,8 @@ const RFQ = () => {
                   </select>
                 </div>
 
-                <div className="col-md-4">
-                  <label className="form-label">Product Group</label>
-                  <select
-                    className="form-select"
-                    value={productGroupId}
-                    onChange={(e) => setProductGroupId(e.target.value)}
-                  >
-                    <option value="">-- Select Product Group --</option>
-                    {productGroups.map((pg) => (
-                      <option key={pg.id} value={pg.id}>
-                        {pg.group_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-md-4">
-                  <label className="form-label">Valve Type</label>
+                <div className="col-md-6">
+                  <label className="form-label">Type</label>
                   <select
                     className="form-select"
                     value={valveType}

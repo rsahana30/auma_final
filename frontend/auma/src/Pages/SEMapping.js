@@ -111,7 +111,7 @@ const SEMapping = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title text-primary">
-                  RFQ: {selectedRFQ.rfq_no} | Type: {selectedRFQ.type}
+                  RFQ: {selectedRFQ.rfq_no} | Type: 
                 </h5>
                 <button type="button" className="btn-close" onClick={() => setSelectedRFQ(null)}></button>
               </div>
