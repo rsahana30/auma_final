@@ -56,7 +56,7 @@ exports.type1 = (req, res) => {
     rfqNo, customerId, type
   } = req.body;
 
-  const total= valveTorque * safetyFactor;
+  const total = valveTorque * safetyFactor;
   const actuator = { name: "AUMA A1", rpm: 30, price: 8000, weight: 6 };
   const opTime = (15 / actuator.rpm).toFixed(2);
 
@@ -120,7 +120,7 @@ exports.type3 = (req, res) => {
     rfqNo, customerId
   } = req.body;
 
-  const total= valveThrust * safetyFactor;
+  const total = valveThrust * safetyFactor;
   const actuator = { name: "AUMA L1", rpm: 15, price: 11000, weight: 9 };
   const opTime = (stroke / (4 * actuator.rpm)).toFixed(2);
 
@@ -329,10 +329,10 @@ exports.submitSEMapping = async (req, res) => {
   try {
     await Promise.all(insertQueries);
     res.json({ message: "SE Mapping submitted successfully" });
-  }catch (err) {
-  console.error("❌ Failed to insert SE Mapping:", err); // already exists?
-  res.status(500).json({ error: err.message }); // <-- this reveals the root cause
-}
+  } catch (err) {
+    console.error("❌ Failed to insert SE Mapping:", err); // already exists?
+    res.status(500).json({ error: err.message }); // <-- this reveals the root cause
+  }
 
 };
 
@@ -454,5 +454,62 @@ exports.getSEQuotation = async (req, res) => {
 };
 
 
+exports.getRfqs = (req, res) => {
+  try {
+    const [rows] = db.query(
+      `SELECT r.rfq_no, c.name AS customer_name
+       FROM rfqs r
+       JOIN customers c ON r.customer_id = c.id
+       ORDER BY r.created_at DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching RFQs:', err);
+    res.status(500).json({ error: 'Failed to fetch RFQs' });
+  }
+};
+exports.getRfqInfo = (req, res) => {
+  const rfqNo = req.params.rfqNo;
+  const sql = `
+    SELECT 
+      r.rfq_no     AS rfqNo,
+      r.created_at AS createdAt,
+      c.name       AS customerName
+    FROM rfqs r
+    JOIN customers c ON r.customer_id = c.id
+    WHERE r.rfq_no = ?
+  `;
+  db.query(sql, [rfqNo], (err, results) => {
+    if (err) {
+      console.error("Error fetching RFQ info:", err);
+      return res.status(500).json({ error: "Failed to fetch RFQ info" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "RFQ not found" });
+    }
+    res.json(results[0]);
+  });
+};
 
-
+// GET /api/se-quotation/:rfqNo
+exports.getSeQuotation = (req, res) => {
+  const rfqNo = req.params.rfqNo;
+  const sql = `
+    SELECT 
+      sm.valveType  AS valveType,
+      sm.aumaModel  AS aumaModel,
+      sm.quantity   AS quantity,
+      am.unitPrice  AS unitPrice
+    FROM save_semappings sm
+    JOIN auma_models am 
+      ON sm.aumaModel = am.modelName
+    WHERE sm.rfqNo = ?
+  `;
+  db.query(sql, [rfqNo], (err, items) => {
+    if (err) {
+      console.error("Error fetching quotation items:", err);
+      return res.status(500).json({ error: "Failed to fetch quotation items" });
+    }
+    res.json(items);
+  });
+};

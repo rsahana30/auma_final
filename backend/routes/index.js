@@ -14,15 +14,12 @@ router.get("/dropdown-data", controller.getDropdownData);
 // ✅ POST route for generating RFQ number (corrected)
 router.post("/generate-rfq", controller.generateRFQNumber);
 
+// Route to fetch RFQ header info
+router.get("/rfq/:rfqNo", controller.getRfqInfo);
 
+// Route to fetch mapped AUMA models & pricing
+router.get("/se-quotation/:rfqNo", controller.getSeQuotation);
 
-// router.get("/se-mapping", controller.getSEMappingData);
-// router.get("/se-details/:rfqNo", controller.getSEDetailsByRFQ);
-// router.get("/getAumaModels", controller.getAumaModels);
-// router.post("/se-mapping/submit", controller.submitSEMapping);
-// router.get("/rfq/:rfqNo", controller.getRFQInfo);
-// router.get("/se-quotation/:rfqNo", controller.getSEQuotation);
-// router.get("/se-mapping/rfqs", controller.getSEMappingRFQs);
 
 
 
