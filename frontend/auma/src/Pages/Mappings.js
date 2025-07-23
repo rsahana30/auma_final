@@ -29,9 +29,28 @@ const Mappings = () => {
     setValveData(updated);
   };
 
+  const handleSaveMappings = () => {
+    axios
+      .post("http://localhost:5000/api/se-mapping/save", {
+        rfqNo,
+        mappings: valveData,
+      })
+      .then(() => alert("Mappings saved successfully!"))
+      .catch((err) => {
+        console.error("Error saving mappings", err);
+        alert("Failed to save mappings");
+      });
+  };
+
   return (
     <div className="container mt-4">
-      <h2>RFQ Mappings for {rfqNo}</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>RFQ Mappings for {rfqNo}</h2>
+        <button className="btn btn-success" onClick={handleSaveMappings}>
+          Save Mappings
+        </button>
+      </div>
+
       <table className="table table-bordered mt-3">
         <thead className="table-dark">
           <tr>
@@ -44,7 +63,6 @@ const Mappings = () => {
             <th>Net Weight</th>
             <th>Unit Price</th>
             <th>Country</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -98,24 +116,6 @@ const Mappings = () => {
                   className="form-control"
                 />
               </td>
-              <td><button
-  className="btn btn-success mt-3"
-  onClick={() => {
-    axios
-      .post("http://localhost:5000/api/se-mapping/save", {
-        rfqNo,
-        mappings: valveData,
-      })
-      .then(() => alert("Mappings saved successfully!"))
-      .catch((err) => {
-        console.error("Error saving mappings", err);
-        alert("Failed to save mappings");
-      });
-  }}
->
-  Save Mappings
-</button>
-</td>
             </tr>
           ))}
         </tbody>
