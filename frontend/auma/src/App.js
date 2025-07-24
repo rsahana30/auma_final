@@ -15,6 +15,7 @@ import SEMapping from "./Pages/SEMapping";
 import Quotation from "./Pages/Quotation";
 import Mappings from "./Pages/Mappings";
 import QuotationMapping from "./Pages/QuotationMapping.js";
+import RFQConfig from "./Configuration/RFQConfig.js";
 
 
 function App() {
@@ -31,9 +32,11 @@ function App() {
           <Route path="/type3" element={<Linear />} />
            <Route path="/mappings/:rfqNo" element={<Mappings/>} />
             <Route path="/quotation/:rfqNo" element={<QuotationMapping/>} />
-          {/* <Route path="/se-mapping/view/:rfqNo" element={<QuotationDetails/>} /> */}
-
           <Route path="/type4" element={<Lever />} />
+
+
+          <Route path="/rfq_config" element={<RFQConfig/>} />
+
         </Route>
       </Routes>
     </Router>

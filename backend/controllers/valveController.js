@@ -496,15 +496,25 @@ exports.getSeQuotation = (req, res) => {
   const rfqNo = req.params.rfqNo;
   const sql = `
     SELECT 
-      sm.valveType  AS valveType,
-      sm.aumaModel  AS aumaModel,
-      sm.quantity   AS quantity,
-      am.unitPrice  AS unitPrice
+      am.netWeight AS netWeight,
+      am.type AS type,
+      sm.aumaModel as aumaModel,
+      am.unitPrice AS unitPrice,
+      am.torqueRange AS torqueRange,
+      am.country AS country,
+      am.controller AS controller,
+      am.protectionType AS protectionType,
+      sm.valveType AS valveType,
+      sm.quantity AS quantity,
+      (am.unitPrice * sm.quantity) AS totalPrice,
+      ((am.unitPrice * sm.quantity) * 0.18) AS gst
     FROM save_semappings sm
     JOIN auma_models am 
-      ON sm.aumaModel = am.modelName
+      ON sm.aumaModel = am.ModelName
     WHERE sm.rfqNo = ?
+    LIMIT 1000;
   `;
+
   db.query(sql, [rfqNo], (err, items) => {
     if (err) {
       console.error("Error fetching quotation items:", err);
