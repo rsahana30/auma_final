@@ -16,6 +16,7 @@ import Quotation from "./Pages/Quotation";
 import Mappings from "./Pages/Mappings";
 import QuotationMapping from "./Pages/QuotationMapping.js";
 import RFQConfig from "./Configuration/RFQConfig.js";
+import DeleteFields from "./Configuration/DeleteFields.js";
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
            <Route path="/mappings/:rfqNo" element={<Mappings/>} />
             <Route path="/quotation/:rfqNo" element={<QuotationMapping/>} />
           <Route path="/type4" element={<Lever />} />
+          <Route path="//manage-fields" element={<DeleteFields/>} />
 
 
           <Route path="/rfq_config" element={<RFQConfig/>} />
