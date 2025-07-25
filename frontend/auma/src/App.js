@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Layout from "./components/Layout";
 import RFQ from "./Pages/RFQ";
 
-// import Quotation from "./pages/Quotation";
 import PartTurn from "./Forms/PartTurn";
 import MultiTurn from "./Forms/MultiTurn";
 import Linear from "./Forms/Linear";
