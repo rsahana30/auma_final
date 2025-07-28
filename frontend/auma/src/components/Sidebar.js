@@ -16,6 +16,9 @@ import { Link } from 'react-router-dom';
       <li className="nav-item">
         <Link to="/quotation" className="nav-link">Quotation</Link>
       </li>
+      <li className="nav-item">
+        <Link to="/rfq_sample" className="nav-link">RFQ Sample</Link>
+      </li>
     </ul>
 
     <h6 className="text-muted mt-4">Configuration Management</h6>
