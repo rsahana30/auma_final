@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
             const token = jwt.sign({ id: results.insertId, name, email, role: role || 'user' }, 'your_jwt_secret', {
                 expiresIn: 86400 // 24 hours
             });
-            res.status(201).send({ auth: true, token });
+            res.status(201).send({ auth: true, token, message: "Signed Up Successfully" });
         });
     } catch (error) {
         res.status(500).send({ message: "Error creating user" });

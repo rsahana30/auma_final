@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Signup = () => {
     const [email, setEmail] = useState('');
@@ -8,25 +10,79 @@ const Signup = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('user');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const navigate = useNavigate();
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            return 'Email is required.';
+        } else if (!emailRegex.test(email)) {
+            return 'Invalid email format.';
+        }
+        return '';
+    };
+
+    const validatePassword = (password) => {
+        if (!password) {
+            return 'Password is required.';
+        } else if (password.length < 8) {
+            return 'Password must be at least 8 characters long.';
+        } else if (!/[A-Z]/.test(password)) {
+            return 'Password must contain at least one uppercase letter.';
+        } else if (!/[a-z]/.test(password)) {
+            return 'Password must contain at least one lowercase letter.';
+        } else if (!/[0-9]/.test(password)) {
+            return 'Password must contain at least one number.';
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            return 'Password must contain at least one special character.';
+        }
+        return '';
+    };
+
+    const validateConfirmPassword = (password, confirmPassword) => {
+        if (!confirmPassword) {
+            return 'Confirm Password is required.';
+        } else if (password !== confirmPassword) {
+            return 'Passwords do not match.';
+        }
+        return '';
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (password !== confirmPassword) {
-            alert('Password does not match');
-            return;
+
+        const emailValidationMsg = validateEmail(email);
+        const passwordValidationMsg = validatePassword(password);
+        const confirmPasswordValidationMsg = validateConfirmPassword(password, confirmPassword);
+
+        if (emailValidationMsg) {
+            toast.error(emailValidationMsg);
         }
+        if (passwordValidationMsg) {
+            toast.error(passwordValidationMsg);
+        }
+        if (confirmPasswordValidationMsg) {
+            toast.error(confirmPasswordValidationMsg);
+        }
+
+        if (emailValidationMsg || passwordValidationMsg || confirmPasswordValidationMsg) {
+            return; // Stop if there are validation errors
+        }
+
         try {
             const response = await axios.post('http://localhost:5000/api/users/signup', { name, email, password, role });
             localStorage.setItem('token', response.data.token);
-            navigate('/');
-            alert(response.data.message);
+            toast.success(response.data.message);
+            navigate('/signin', { state: { email, password } });
         } catch (error) {
             console.error('Signup error', error.message);
             if (error.response?.data?.message) {
-                alert(error.response.data.message);
+                toast.error(error.response.data.message);
             } else {
-                alert("Signup failed");
+                toast.error("Signup failed");
             }
         }
     };
@@ -59,7 +115,10 @@ const Signup = () => {
                         <input
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => {
+                                setEmail(e.target.value);
+                                setEmailError(''); // Clear error on change
+                            }}
                             placeholder="Email"
                             className="form-control"
                             required
@@ -70,7 +129,10 @@ const Signup = () => {
                         <input
                             type="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                setPasswordError(''); // Clear error on change
+                            }}
                             placeholder="Password"
                             className="form-control"
                             required
@@ -81,7 +143,10 @@ const Signup = () => {
                         <input
                             type="password"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                setConfirmPasswordError(''); // Clear error on change
+                            }}
                             placeholder="Confirm Password"
                             className="form-control"
                             required
@@ -112,6 +177,7 @@ const Signup = () => {
                     </p>
                 </form>
             </div>
+            <ToastContainer />
         </div>
 
     );
